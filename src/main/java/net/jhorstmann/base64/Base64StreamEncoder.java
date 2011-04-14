@@ -15,6 +15,7 @@ public class Base64StreamEncoder {
     private static final char[] alphabet =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
     private static final int DEFAULT_LINE_WIDTH = 76;
+    private static final char DEFAULT_LINE_SEPARATOR = '\n';
 
     private static final int STATE_EOF   = -1;
     private static final int STATE_START = 0;
@@ -23,7 +24,7 @@ public class Base64StreamEncoder {
     private int buffer;
     private int lineIdx;
     private int lineWidth = DEFAULT_LINE_WIDTH;
-    private String lineSeparator = "\n";
+    private char lineSeparator = DEFAULT_LINE_SEPARATOR;
 
     void reset() {
         this.state = 0;
@@ -86,6 +87,11 @@ public class Base64StreamEncoder {
         }
     }
 
+    private int expectedLength(int length) {
+        int tmp = (length+3)*4/3; // round up
+        return tmp + tmp/lineWidth + 2; // add newlines and padding
+    }
+
     public boolean isComplete() {
         return this.state == STATE_START || this.state == STATE_EOF;
     }
@@ -128,13 +134,13 @@ public class Base64StreamEncoder {
     }
 
     public String encode(String str) throws IOException {
-        StringBuilder out = new StringBuilder();
+        FixedSizeStringBuilder out = new FixedSizeStringBuilder(expectedLength(str.length()));
         encode(str, out);
         return out.toString();
     }
 
     public String encode(byte[] in) throws IOException {
-        StringBuilder out = new StringBuilder();
+        FixedSizeStringBuilder out = new FixedSizeStringBuilder(expectedLength(in.length));
         encode(in, out);
         return out.toString();
     }

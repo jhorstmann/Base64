@@ -1,21 +1,21 @@
 package net.jhorstmann.base64;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
-final class ByteAppendable implements Appendable {
+final class FixedSizeStringBuilder implements Appendable {
 
-    private OutputStream out;
+    private char[] array;
+    private int index;
 
-    ByteAppendable(OutputStream out) {
-        this.out = out;
+    FixedSizeStringBuilder(int length) {
+        array = new char[length];
     }
 
-    private void appendImpl(char c) throws IOException {
-        if (c > 255) {
-            throw new IllegalArgumentException("Invalid character " + (int)c);
+    private void appendImpl(char c) {
+        if (index >= array.length) {
+            throw new IllegalStateException("Capacity (" + array.length + ") exceeded");
         }
-        out.write(c);
+        array[index++] = c;
     }
 
     public Appendable append(CharSequence csq) throws IOException {
@@ -35,5 +35,10 @@ final class ByteAppendable implements Appendable {
     public Appendable append(char c) throws IOException {
         appendImpl(c);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new String(array, 0, index);
     }
 }
