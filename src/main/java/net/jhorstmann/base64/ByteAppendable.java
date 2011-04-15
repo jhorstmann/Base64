@@ -1,9 +1,10 @@
 package net.jhorstmann.base64;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 
-final class ByteAppendable implements Appendable {
+final class ByteAppendable implements Appendable, Closeable {
 
     private OutputStream out;
 
@@ -35,5 +36,9 @@ final class ByteAppendable implements Appendable {
     public Appendable append(char c) throws IOException {
         appendImpl(c);
         return this;
+    }
+
+    public void close() throws IOException {
+        out.close();
     }
 }
