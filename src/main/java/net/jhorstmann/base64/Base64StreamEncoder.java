@@ -1,14 +1,11 @@
 package net.jhorstmann.base64;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.ByteBuffer;
 
 public class Base64StreamEncoder {
@@ -176,15 +173,13 @@ public class Base64StreamEncoder {
     }
 
     public void encode(File inFile, File outFile) throws IOException {
-        encode(inFile, outFile, 32*1024);
-    }
-
-    public void encode(File inFile, File outFile, int bufferSize) throws IOException {
-        InputStream in = new BufferedInputStream(new FileInputStream(inFile), bufferSize);
+        int inBufferSize = 24*1024;
+        int outBufferSize = inBufferSize/6*8;
+        InputStream in = new BufferedInputStream(new FileInputStream(inFile), inBufferSize);
         try {
-            Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(outFile), bufferSize), "US-ASCII");
+            BufferedByteAppendable out = new BufferedByteAppendable(new FileOutputStream(outFile), outBufferSize);
             try {
-                encode(in, out, bufferSize);
+                encode(in, out, inBufferSize);
             } finally {
                 out.close();
             }
