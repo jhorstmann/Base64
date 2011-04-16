@@ -50,7 +50,7 @@ public class Base64StreamDecoder {
     }
 
     private static int decodeChar(int ch) throws IOException {
-        if (ch > codes.length) {
+        if (ch < 0 || ch >= codes.length) {
             throw new InvalidCharacterException(ch);
         } else {
             int val = codes[ch];
