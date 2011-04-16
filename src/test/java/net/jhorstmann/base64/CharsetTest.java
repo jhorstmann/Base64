@@ -3,6 +3,7 @@ package net.jhorstmann.base64;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,10 +40,12 @@ public class CharsetTest {
 
     private void test(String str) throws IOException {
         byte[] data = str.getBytes("UTF-8");
+        test(data);
+    }
+
+    private void test(byte[] data) throws IOException {
         String base64 = new Base64StreamEncoder().encode(data);
-        //System.out.println(base64);
         Assert.assertEquals(base64, new String(data, "BASE64"));
-        //System.out.println(new String(base64.getBytes("BASE64"), "UTF-8"));
         assertEquals(data, base64.getBytes("BASE64"));
     }
 
@@ -99,4 +102,27 @@ public class CharsetTest {
         test("Hallo Welt");
         test("Dies ist ein Test");
     }
+
+    @Test
+    public void testRandomSmall() throws IOException {
+        Random random = new Random();
+        int step = 13;
+        int max = 1<<15;
+        for (int i=step; i<max; i+=step) {
+            byte[] data = new byte[i];
+            random.nextBytes(data);
+            test(data);
+        }
+    }
+
+    @Test
+    public void testRandomLarge() throws IOException {
+        Random random = new Random();
+        for (int i=8; i<25; i++) {
+            byte[] data = new byte[(1<<i) + random.nextInt(1<<(i-1))];
+            random.nextBytes(data);
+            test(data);
+        }
+    }
+
 }
